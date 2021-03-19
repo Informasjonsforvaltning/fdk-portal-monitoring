@@ -1,6 +1,6 @@
 from invoke import task
 
-#pipenv_install = "pipenv install --dev"
+pipenv_install = "pipenv install --dev"
 
 
 @task
