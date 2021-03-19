@@ -25,15 +25,8 @@ def start_selenium_tests():
 
 if __name__ == "__main__":
     ROOT_DIR = Path(__file__).parent.parent
-    logfile = Path.joinpath(ROOT_DIR, "src", "app.log")
 
-    logging.basicConfig(
-        filename=logfile,
-        format="%(asctime)s %(levelname)s: %(message)s",
-        level=logging.INFO,
-    )
-
-    logging.info("Starting main")
+    logging.error("Starting main")
     start_selenium_tests()
 
-    logging.info("Ending main")
+    logging.error("Ending main")
