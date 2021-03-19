@@ -15,4 +15,6 @@ RUN touch /usr/src/app/app.log
 
 ADD src src/
 
+EXPOSE 8080
+
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
