@@ -18,3 +18,5 @@ ADD src src/
 EXPOSE 8080
 
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
+
+CMD sh -c "pipenv run python3 src/selenium_driver.py"

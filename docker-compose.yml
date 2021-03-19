@@ -25,7 +25,6 @@ services:
     build: .
     volumes:
       - ./:/usr/src/app
-    command: sh -c "pipenv run python3 src/selenium_driver.py"
     depends_on:
       - fdk-portal
     networks:
