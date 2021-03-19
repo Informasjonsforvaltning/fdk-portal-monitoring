@@ -20,7 +20,8 @@ services:
       - FDK_REGISTRATION_BASE_URI=https://registrering.fellesdatakatalog.digdir.no
       - ADMIN_GUI_BASE_URI=https://admin.fellesdatakatalog.digdir.no
       - INFORMATIONMODEL_HARVESTER_HOST=https://informationmodels.fellesdatakatalog.digdir.no
-  app:
+  fdk-portal-monitoring:
+    image: eu.gcr.io/digdir-fdk-infra/fdk-portal-monitoring:latest
     build: .
     volumes:
       - ./:/usr/src/app
