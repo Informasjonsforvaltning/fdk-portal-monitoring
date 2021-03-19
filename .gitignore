@@ -1,1 +1,11 @@
-.idea/
+# Pycharm
+.idea
+
+# Environments
+.env
+
+# Logs:
+*.log
+
+#build
+requirements.txt
