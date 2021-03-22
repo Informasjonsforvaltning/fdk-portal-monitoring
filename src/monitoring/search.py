@@ -6,6 +6,7 @@ from selenium.common.exceptions import (
     ElementNotInteractableException,
     NoSuchElementException,
 )
+from selenium.webdriver.common.by import By
 
 from src.driver import create_driver
 
@@ -22,8 +23,8 @@ def navigate_through_all_search_results_and_details_pages():
         chrome_driver.get(f"{FDK_PORTAL_HOST}/search-all?page={search_page}")
 
         def visit_search_hits():
-            search_hit_elements = chrome_driver.find_elements_by_xpath(
-                "//*/article/div[1]/div[2]/div[1]/h2/a[@href]"
+            search_hit_elements = chrome_driver.find_elements(
+                by=By.XPATH, value="//*/article/div[1]/div[2]/div[1]/h2/a[@href]"
             )
             search_hit_elements_refs = []
 
@@ -40,9 +41,9 @@ def navigate_through_all_search_results_and_details_pages():
             chrome_driver.get(f"{FDK_PORTAL_HOST}/search-all?page={search_page}")
             sleep(2)
             search_page = search_page + 1
-            next_button = chrome_driver.find_element_by_class_name(
-                "next"
-            ).find_element_by_tag_name("a")
+            next_button = chrome_driver.find_element(
+                by=By.CLASS_NAME, value="next"
+            ).find_element(by=By.TAG_NAME, value="a")
             if next_button is None:
                 more_pages = False
             else:
