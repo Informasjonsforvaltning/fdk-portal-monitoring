@@ -1,5 +1,8 @@
 FROM python:3.8-alpine
 
+ENV TZ=Europe/Oslo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apk update
 RUN apk add curl
 RUN apk add unzip nano bash chromium chromium-chromedriver
