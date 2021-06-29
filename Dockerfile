@@ -12,6 +12,7 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY Pipfile /usr/src/app/
+COPY Pipfile.lock /usr/src/app/
 RUN pip install pipenv
 RUN pipenv install
 RUN touch /usr/src/app/app.log
