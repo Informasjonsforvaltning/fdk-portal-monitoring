@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
     - name: Setup python environment
       uses: actions/setup-python@v2
@@ -27,11 +28,10 @@ jobs:
     - name: Install dev dependencies
       run: pipenv install --dev
 
-    - name: Setup gcloud CLI
-      uses: google-github-actions/setup-gcloud@master
+    - name: Auth gcloud CLI for image-store
+      uses: google-github-actions/auth@v0
       with:
-        service_account_email: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_EMAIL }}
-        service_account_key: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
+        credentials_json: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
 
     - name: Configure docker to use the gcloud command-line tool as a credential helper
       run: gcloud auth configure-docker eu.gcr.io
@@ -50,26 +50,28 @@ jobs:
 
     - name: Apply Helm template
       run: |
-          helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
-          helm fetch --untar --untardir ./helm fdk/fdk-portal-monitoring
-          helm template --set DOCKER_IMAGE_NAME="eu.gcr.io/digdir-fdk-infra/fdk-portal-monitoring:$GITHUB_SHA" -f ./helm/fdk-portal-monitoring/values/prod.yaml ./helm/fdk-portal-monitoring/ > ./kubectlapply.yaml
-          chmod o+w ./kubectlapply.yaml
-          cat kubectlapply.yaml
+        helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
+        helm fetch --untar --untardir ./helm fdk/fdk-portal-monitoring
+        helm template --set DOCKER_IMAGE_NAME="eu.gcr.io/digdir-fdk-infra/fdk-portal-monitoring:$GITHUB_SHA" \
+        -f ./helm/fdk-portal-monitoring/values/prod.yaml \
+        ./helm/fdk-portal-monitoring/ > ./kubectlapply.yaml
+        chmod o+w ./kubectlapply.yaml
+        cat kubectlapply.yaml
 
-    - name: Get kubeconfig file from GKE
-      uses: machine-learning-apps/gke-kubeconfig@master
+    - name: Auth gcloud CLI for deploy
+      uses: google-github-actions/auth@v0
       with:
-        application_credentials: ${{ secrets.DIGDIR_FDK_PROD_AUTODEPLOY }}
-        project_id: digdir-fdk-prod
-        location_zone: europe-north1-a
-        cluster_name: digdir-fdk-prod
+        credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
 
-    - name: Deploy to production
-      uses: docker://bitnami/kubectl:latest
-      env:
-        KUBECONFIG: '/github/workspace/.kube/config'
-      with:
-        args: "apply -f ./kubectlapply.yaml --force"
+    - name: Deploy to GCP & check status
+      run: |
+        gcloud container clusters get-credentials digdir-fdk-prod --region europe-north1-a --project digdir-fdk-prod
+        kubectl apply -f ./kubectlapply.yaml --force
+        if ! kubectl --namespace=prod rollout status deployment fdk-portal-monitoring; then
+          kubectl --namespace=prod rollout undo deployment fdk-portal-monitoring
+          kubectl --namespace=prod rollout status deployment fdk-portal-monitoring
+          exit 1
+        fi
 
     - name: Notify slack
       uses: 8398a7/action-slack@v3
